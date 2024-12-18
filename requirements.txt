@@ -2,7 +2,6 @@ git+https://github.com/csem/experiment_tracker.git
 hydra-core==1.3.2
 joblib==1.3.2
 numpy==2.2.0
-omegaconf==2.1.2
 pandas==2.2.3
 plotly==5.18.0
 prog_models==1.5.2

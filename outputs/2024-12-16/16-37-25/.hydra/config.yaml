@@ -1,0 +1,23 @@
+method:
+  requires_normalization: false
+  is_single_query: false
+  name: dynaformer
+  lr: 0.0001
+  batch_size: 12
+  instance_norm: false
+current_type: variable_loading
+data_dir: data/variable_currents/2022-04-27/14-58-12/data
+num_w: 1
+loss: rmse
+patience_lr_plateau: 100
+gpu: 1
+vp: 0.15
+epochs: 2
+out_dimension: 500
+using_current: true
+randomized_context: true
+min_init: 0
+max_init: 50
+min_length: 200
+max_length: 200
+model_checkpoint: false

@@ -1,0 +1,41 @@
+test_sets:
+  final_number_of_test: 5
+  drop_param: 0.9
+  reject_training_samples: false
+  rejest_training_sample_percent: 1.0
+  extrapolation_exp: true
+  extrapolation_max: 1.1
+  prebaked_currents: true
+  current_linspace: false
+  N_currents: 12
+name: dataset_v2
+run: null
+first_output:
+  t: 18.95
+  v: 4.183
+sim_config:
+  save_freq: 2
+noise: 0
+njobs: 20
+to_threshold: true
+Q:
+  max: 8000
+  min: 5000
+  res: 2
+R:
+  max: 0.45
+  min: 0.017215
+  res: 2
+randomize_i: false
+reject_trajectory_shorter_than: 500
+reject_trajectory_longer_than: 20000
+N_currents: 1000
+current_linspace: true
+q_r_linspace: true
+perc_linspace: 0.75
+current:
+  current_type: random_variable_loading
+  min: 0.05
+  max: 3
+  N_profiles: 6
+chunk_size: 20

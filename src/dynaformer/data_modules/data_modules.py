@@ -19,6 +19,7 @@ from scipy.interpolate import interp1d
 import pandas as pd
 import scipy.io
 from pathlib import Path
+import surrogate
 
 def collate_fn_padd(batch):
     '''
@@ -373,7 +374,7 @@ class DataModuleExpII(LightningDataModule):
             # else:
         self.training_dataset = ChunksDataset(train_metadata, mode="train", requires_normalization=requires_normalization, min_init=min_init, max_init=max_init, min_length=min_length, max_length=max_length,drop_final=drop_final, is_single_query=is_single_query)
         self.val_dataset = ChunksDataset(validation_metadata, mode="val", requires_normalization=requires_normalization, min_init=min_init, max_init=max_init, min_length=min_length, max_length=max_length,drop_final=drop_final)
-
+        self.test_dataset = self.val_dataset
 
     def setup(self, stage=None):
         """called one each GPU separately - stage defines if we are at fit or test step"""
@@ -401,6 +402,7 @@ class DataModuleExpII(LightningDataModule):
             drop_last=self.drop_last,
             num_workers=self.num_w,
             collate_fn=collate_fn_padd,
+            persistent_workers=True,
         )
         return trainloader
     def val_dataloader(self):
@@ -412,6 +414,7 @@ class DataModuleExpII(LightningDataModule):
             drop_last=False,
             num_workers=self.num_w,
             collate_fn=collate_fn_padd,
+            persistent_workers=True,
         )
         return valloader_syn
 
@@ -423,6 +426,7 @@ class DataModuleExpII(LightningDataModule):
             drop_last=False,
             num_workers=self.num_w,
             collate_fn=collate_fn_padd,
+            persistent_workers=True,
         )
         return testloader
 
@@ -598,19 +602,29 @@ class ChunksDataset(BaseDataset):
 
 
             with open(current_path, 'rb') as f:
+                from dynaformer import CurrentProfile
+                surrogate.CurrentProfile = CurrentProfile
                 current_batch = pickle.load(f)
 
             with open(voltage_path, 'rb') as f:
+                from dynaformer import CurrentProfile
+                surrogate.CurrentProfile = CurrentProfile
                 voltage_batch = pickle.load(f)
 
             with open(times_path, 'rb') as f:
+                from dynaformer import CurrentProfile
+                surrogate.CurrentProfile = CurrentProfile
                 times_batch = pickle.load(f)
 
             if self.mode in set(["test","val"]):
                 with open(q_path, 'rb') as f:
+                    from dynaformer import CurrentProfile
+                    surrogate.CurrentProfile = CurrentProfile
                     q_batch = pickle.load(f)
 
                 with open(r_path, 'rb') as f:
+                    from dynaformer import CurrentProfile
+                    surrogate.CurrentProfile = CurrentProfile
                     r_batch = pickle.load(f)
 
             

@@ -80,7 +80,7 @@ class BaseModel2(LightningModule):
         # if True:
         #     padding = torch.zeros([inp.shape[0],100,inp.shape[2]], device=self.device)
         #     inp = torch.cat([inp,padding],axis=1)
-        #zero_mask = padded_voltage != 0 # zero only for padding
+        zero_mask = padded_voltage != 0 # zero only for padding
 
         #gt_voltage = padded_voltage[padded_voltage!=0]
         pred_voltages = self.forward(inp, padded_current)
@@ -104,18 +104,18 @@ class BaseModel2(LightningModule):
                 errors.append(0)
         self.results.append(pd.DataFrame(batch_entries))
         # else:
-        #     out = self.forward(inp,padded_current)
-        #     loss = self.loss_func(out[zero_mask].squeeze(), padded_voltage[zero_mask].squeeze())
-        #     self.log('valid_loss',loss,on_step=True,on_epoch=True)
+        out = self.forward(inp,padded_current)
+        loss = self.loss_func(out[zero_mask].squeeze(), padded_voltage[zero_mask].squeeze())
+        self.log('val_loss',loss,on_step=True,on_epoch=True)
 
-
-    def validation_epoch_end(self, outputs) -> None:
+        return loss
+    def on_validation_epoch_end(self, outputs=None) -> None:
         df = pd.concat(self.results)
         error_smaller_than_1 = df.loc[(df['ratio'] < 1)]
         error_bigger_than_1 = df.loc[(df['ratio'] > 1)]
 
         final_entries = []
-        for dataset_curve in error_smaller_than_1.groupby(['dataset','curve']):
+        for dataset_curve in error_smaller_than_1.groupby(['dataset', 'curve']):
             dataset, curve = dataset_curve[0]
             curr_df = dataset_curve[1]
             failed = curr_df.loc[curr_df['is_dead']]
@@ -123,8 +123,8 @@ class BaseModel2(LightningModule):
                 ratio = 1
             else:
                 ratio = failed['ratio'].min()
-            final_entries.append({'dataset':dataset,'curve':curve,'error':1-ratio, 'error_type':"undershoot"})
-        for dataset_curve in error_bigger_than_1.groupby(['dataset','curve']):
+            final_entries.append({'dataset': dataset, 'curve': curve, 'error': 1 - ratio, 'error_type': "undershoot"})
+        for dataset_curve in error_bigger_than_1.groupby(['dataset', 'curve']):
             dataset, curve = dataset_curve[0]
             curr_df = dataset_curve[1]
             failed = curr_df.loc[~curr_df['is_dead']]
@@ -132,23 +132,25 @@ class BaseModel2(LightningModule):
                 ratio = 1
             else:
                 ratio = failed['ratio'].max()
-            final_entries.append({'dataset':dataset,'curve':curve,'error':ratio-1, 'error_type':"overshoot"})
+            final_entries.append({'dataset': dataset, 'curve': curve, 'error': ratio - 1, 'error_type': "overshoot"})
 
         current_res = pd.DataFrame(final_entries)
         final_final_entries = []
-        for dataset_curve in current_res.groupby(['dataset','curve']):
+        for dataset_curve in current_res.groupby(['dataset', 'curve']):
             dataset, curve = dataset_curve[0]
             curr_df = dataset_curve[1]
-            temp=curr_df.sort_values('error',ascending=False).iloc[0:1]
+            temp = curr_df.sort_values('error', ascending=False).iloc[0:1]
             final_final_entries.append(temp)
         current_res = pd.concat(final_final_entries)
 
         current_res.to_csv(f'results_{self.counter}.csv')
-        self.log('prediction_error',current_res['error'].mean(), on_epoch=True)
+        self.log('prediction_error', current_res['error'].mean(), on_epoch=True)
         print('here: ', current_res['error'].mean(), current_res['error'].std())
         self.results = []
         self.counter = self.counter + 1
-        return super().validation_epoch_end(outputs)
+
+    def test_step(self, input, batch_idx):
+        return self.validation_step(input, batch_idx)
 
     def weighted_mse_loss(self,input,target,weight):
         return torch.mean(weight*((input- target)**2))

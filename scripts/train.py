@@ -4,7 +4,8 @@ from dynaformer.data_modules.data_modules import*
 import hydra
 from pathlib import Path
 from dynaformer.models import Dynaformer
-
+from dynaformer import CurrentProfile
+os.environ['CUDA_LAUNCH_BLOCKING'] = '1'
 
 @hydra.main(config_path="../config/", config_name='train')
 def main(cfg):
@@ -42,15 +43,15 @@ def main(cfg):
         callbacks=[checkpoint_callback_pred,checkpoint_callback_train],
         #strategy='ddp',            
         max_epochs=cfg.epochs,
-        check_val_every_n_epoch=3,
-        num_sanity_val_steps=-1,
+        check_val_every_n_epoch=None,
+        num_sanity_val_steps=0,
         accelerator="gpu",
-        gpus=cfg.gpu
+        devices=cfg.gpu,
+        logger=True,
         
     )   
 
     trainer.fit(model, data)
-
 
 
 if __name__ == "__main__":

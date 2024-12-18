@@ -61,6 +61,8 @@ class Dynaformer(BaseModel2):
  
         query = all_query
         positions = torch.arange(0,query.shape[1], device=self.device).unsqueeze(0).repeat(x.shape[0], 1)
+        assert positions.min().item() >= 0, "Positions contain negative index!"
+        assert positions.max().item() < self.positional_embedding_query.num_embeddings, "Positions index out of range!"
         positional_embedding = self.positional_embedding_query(positions)
         # sum the positional embedding with the encoder output
         query = query + positional_embedding

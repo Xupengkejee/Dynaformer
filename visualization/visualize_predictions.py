@@ -1,4 +1,4 @@
-import csem_exptrack
+import experiment_tracker
 import numpy as np
 from dynaformer import  metrics
 from dynaformer.data_modules.data_modules import*
@@ -61,9 +61,9 @@ def main():
     st.title("Visualizer")
     is_model_selected = st.checkbox("Show model prediction", value=True)
     if is_model_selected:
-        df_single = csem_exptrack.load_project("runs",["weights/dynaformer*"], logic="singlerun")
+        df_single = experiment_tracker.load_project("outputs",["weights/dynaformer*"], logic="singlerun")
         df = df_single.sort_index(axis=1)      
-        selected = st.selectbox("Select a run", sorted(df.columns,reverse=True),index=0)
+        selected = st.selectbox("Select a run", sorted(df['collected_path_0'],reverse=False),index=0)
 
     val_dir = st.text_input("Insert path to the dataset (Something like data/YYYY-MM-DD/HH-MM-SS/data", "data/variable_currents/2022-04-27/14-58-12/data")
     config_dataset = safe_load(open(Path(val_dir) / "../.hydra/config.yaml", 'r'))
@@ -82,7 +82,7 @@ def main():
 
     if is_model_selected:
         key = ("path",0)
-        model_path = Path(df.loc[key,selected])
+        model_path = Path(selected)
         st.write(model_path)
         model = Dynaformer.load_from_checkpoint(model_path)
         model = model.cpu()        
@@ -216,6 +216,7 @@ def main():
         st.write(f"RMSE: {metrics['rmse'][n]}")
         st.write(f"Wasserstein: {metrics['wasserstein'][n]}")
         st.write(f"MSE: {metrics['mse'][n]}")
+
 
 
 

@@ -2,14 +2,14 @@ defaults:
   - method: ???
 
 current_type: variable_loading # 
-data_dir: ???
-num_w: 24 # Number of workers
+data_dir: data/variable_currents/2022-04-27/14-58-12/data
+num_w: 1 # Number of workers
 loss: rmse
 patience_lr_plateau: 100
 gpu: 1
 
 vp: 0.15 # Validation samples
-epochs: 10000
+epochs: 10
 
 out_dimension: 500
 using_current: True

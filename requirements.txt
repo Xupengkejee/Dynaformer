@@ -14,5 +14,5 @@ scipy==1.14.1
 setuptools==75.6.0
 streamlit==1.41.0
 surrogate==0.1
-torch==2.1.2+cu121
+torch==2.1.2
 tqdm==4.66.1

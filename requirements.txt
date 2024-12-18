@@ -15,3 +15,4 @@ streamlit==1.41.0
 surrogate==0.1
 torch==2.1.2
 tqdm==4.66.1
+src/

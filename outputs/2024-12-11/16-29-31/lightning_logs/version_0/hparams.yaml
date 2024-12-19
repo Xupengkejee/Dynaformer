@@ -1,6 +1,0 @@
-final_out_dim: 1
-hidden_dim: 128
-lr: 0.0001
-is_instance_norm: false
-loss: rmse
-patience_lr_plateau: 100
